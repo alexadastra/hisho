@@ -8,15 +8,15 @@ replace (
 )
 
 require (
+	github.com/alexadastra/hisho/hisho-bot/pkg/api v0.0.0-00010101000000-000000000000
 	github.com/alexadastra/ramme v0.0.0-00010101000000-000000000000
 	github.com/flowchartsman/swaggerui v0.0.0-20210303154956-0e71c297862e
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.3
 	github.com/pkg/errors v0.9.1
 	google.golang.org/grpc v1.47.0
 	gopkg.in/yaml.v2 v2.4.0
 )
-
-require github.com/alexadastra/hisho/hisho-bot/pkg/api v0.0.0-00010101000000-000000000000
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect

@@ -1,5 +1,5 @@
 APP=hisho-bot
-PROJECT=github.com/alexadastra/${APP}
+PROJECT=github.com/alexadastra/hisho/${APP}
 REGISTRY?=registry.miem.hse.ru/786/${APP}
 CA_DIR?=certs
 
@@ -17,6 +17,10 @@ VALUES?=values-${INFRASTRUCTURE}
 
 CONTAINER_IMAGE?=${REGISTRY}/${APP}
 CONTAINER_NAME?=${APP}-${NAMESPACE}
+
+HTTP_PORT?=8080
+HTTP_SECONDARY_PORT?=8081
+GRPC_PORT?=8082
 
 REPO_INFO=$(shell git config --get remote.origin.url)
 
@@ -60,9 +64,9 @@ push: build
 .PHONY: run
 run: build
 	@echo "+ $@"
-	@docker run --name ${CONTAINER_NAME} -p ${FRONTEND-GATEWAY_HTTP_PORT}:${FRONTEND-GATEWAY_HTTP_PORT} \
-		-p ${FRONTEND-GATEWAY_HTTP_SECONDARY_PORT}:${FRONTEND-GATEWAY_HTTP_SECONDARY_PORT} \
-		-p ${FRONTEND-GATEWAY_GRPC_PORT}:${FRONTEND-GATEWAY_GRPC_PORT} \
+	@docker run --name ${CONTAINER_NAME} -p ${HTTP_PORT}:${HTTP_PORT} \
+		-p ${HTTP_SECONDARY_PORT}:${HTTP_SECONDARY_PORT} \
+		-p ${GRPC_PORT}:${GRPC_PORT} \
 		-d $(CONTAINER_IMAGE):$(RELEASE)
 	@sleep 1
 	@docker logs ${CONTAINER_NAME}

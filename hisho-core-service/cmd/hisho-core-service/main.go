@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net"
 	"net/http"
 	"time"
 
-	service2 "github.com/alexadastra/hisho/hisho-core-service/internal/app/service"
+	service2 "github.com/alexadastra/hisho/hisho-core-service/internal/app/hisho-core-service"
+	"github.com/alexadastra/hisho/hisho-core-service/internal/app/storage/pgsql"
 
 	"github.com/alexadastra/ramme/config"
 	"github.com/alexadastra/ramme/service"
@@ -18,13 +20,17 @@ import (
 
 	"github.com/alexadastra/hisho/hisho-core-service/pkg/api"
 
+	service3 "github.com/alexadastra/hisho/hisho-core-service/internal/app/service"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
 
 func main() {
 	// Load ENV configuration
-	config.ServiceName = "HISHO-CORE-SERVICE"
+	args := parseFlag()
+	config.ServiceName = args.serviceName
+	config.File = args.configPath
+
 	basicConfManager, basicConfWatcher, err := config.InitBasicConfig()
 	if err != nil {
 		panic(err)
@@ -43,16 +49,21 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	// TODO: figure out how to use advanced config
-	logger.Info(advancedConfig)
+	ctx := context.Background()
+
+	storage, err := pgsql.NewStorage(ctx, advancedConfig.PostgresHost)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	serv := service3.NewService(storage)
 
 	// Setup gRPC servers.
 	baseGrpcServer := grpc.NewServer()
-	userGrpcServer := service2.NewHishoCoreService()
+	userGrpcServer := service2.NewHishoCoreService(serv)
 	api.RegisterHishoCoreServiceServer(baseGrpcServer, userGrpcServer)
 
 	// Setup gRPC gateway.
-	ctx := context.Background()
 	rmux := runtime.NewServeMux()
 	mux := http.NewServeMux()
 	mux.Handle("/", rmux)
@@ -127,4 +138,18 @@ func main() {
 	if err := g.Run(); err != nil {
 		logger.Fatal(err)
 	}
+}
+
+type args struct {
+	serviceName string
+	configPath  string
+}
+
+func parseFlag() *args {
+	var a args
+	flag.StringVar(&a.serviceName, "name", "", "defines service name")
+	flag.StringVar(&a.configPath, "config_path", "/etc/config/config.yaml",
+		"defines the path where the service reads config from")
+	flag.Parse()
+	return &a
 }
