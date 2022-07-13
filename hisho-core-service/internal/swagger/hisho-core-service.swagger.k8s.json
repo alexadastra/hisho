@@ -13,6 +13,7 @@
   "paths": {
     "/default/hisho-core-service/v1/ping": {
       "post": {
+        "summary": "ping pong",
         "operationId": "HishoCoreService_Ping",
         "responses": {
           "200": {
@@ -42,6 +43,39 @@
           "HishoCoreService"
         ]
       }
+    },
+    "/default/hisho-core-service/v1/tasks/by_term": {
+      "post": {
+        "summary": "get tasks for terms (today, week, other etc.)",
+        "operationId": "HishoCoreService_GetTasksByTerm",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/hisho_core_serviceTasksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/hisho_core_serviceTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HishoCoreService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -64,6 +98,61 @@
           "type": "string"
         }
       }
+    },
+    "hisho_core_serviceTask": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "title": {
+          "type": "string"
+        },
+        "term": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "done_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "hisho_core_serviceTaskRequest": {
+      "type": "object",
+      "properties": {
+        "term": {
+          "$ref": "#/definitions/hisho_core_serviceTerm"
+        }
+      }
+    },
+    "hisho_core_serviceTasksResponse": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/hisho_core_serviceTask"
+          }
+        }
+      }
+    },
+    "hisho_core_serviceTerm": {
+      "type": "string",
+      "enum": [
+        "OTHER",
+        "WEEK",
+        "TODAY"
+      ],
+      "default": "OTHER"
     },
     "protobufAny": {
       "type": "object",

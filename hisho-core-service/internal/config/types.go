@@ -12,7 +12,8 @@ type Config struct {
 
 // AdvancedConfig holds advanced application's configuration
 type AdvancedConfig struct {
-	PingMessage string `yaml:"ping_message"`
+	PingMessage  string `yaml:"ping_message"`
+	PostgresHost string `yaml:"postgres_host"`
 }
 
 // UnmarshalConfig unmarshalls file bytes to advanced config

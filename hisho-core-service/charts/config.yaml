@@ -7,3 +7,4 @@ basic:
   is_local_environment: false
 advanced:
   ping_message: Hello Blip Blop
+  postgres_host: host=localhost port=5432 user=admin password=password dbname=hisho sslmode=disable

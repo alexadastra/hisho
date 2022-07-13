@@ -3,11 +3,21 @@ package hisho_core_service;
 option go_package = "pkg/api";
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 service HishoCoreService {
+  // ping pong
   rpc Ping(PingRequest) returns (PingResponse) {
     option (google.api.http) = {
       post: "/v1/ping"
+      body: "*"
+    };
+  }
+  // get tasks for terms (today, week, other etc.)
+  rpc GetTasksByTerm(TaskRequest) returns (TasksResponse) {
+    option (google.api.http) = {
+      post: "/v1/tasks/by_term"
       body: "*"
     };
   }
@@ -20,4 +30,27 @@ message PingRequest {
 message PingResponse {
   int64 code = 1;
   string value = 2;
+}
+
+message Task {
+  int64 id = 1;
+  string title = 2;
+  string term = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  google.protobuf.Timestamp done_at = 6;
+}
+
+enum Term {
+  OTHER = 0;
+  WEEK = 1;
+  TODAY = 2;
+}
+
+message TaskRequest {
+  Term term = 1;
+}
+
+message TasksResponse {
+  repeated Task tasks = 1;
 }
