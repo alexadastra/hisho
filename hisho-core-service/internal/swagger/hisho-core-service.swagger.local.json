@@ -44,7 +44,40 @@
         ]
       }
     },
-    "/v1/tasks/by_term": {
+    "/v1/tasks/add": {
+      "post": {
+        "summary": "add new task",
+        "operationId": "HishoCoreService_AddTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/hisho_core_serviceMsg"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/hisho_core_serviceTask"
+            }
+          }
+        ],
+        "tags": [
+          "HishoCoreService"
+        ]
+      }
+    },
+    "/v1/tasks/get_by_term": {
       "post": {
         "summary": "get tasks for terms (today, week, other etc.)",
         "operationId": "HishoCoreService_GetTasksByTerm",
@@ -79,6 +112,14 @@
     }
   },
   "definitions": {
+    "hisho_core_serviceMsg": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
     "hisho_core_servicePingRequest": {
       "type": "object",
       "properties": {
@@ -104,7 +145,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64"
+          "format": "uint64"
         },
         "title": {
           "type": "string"

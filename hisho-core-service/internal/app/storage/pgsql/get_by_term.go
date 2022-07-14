@@ -9,11 +9,11 @@ import (
 )
 
 // GetTasksByTerm gets tasks by numeric term from table
-func (s *PGStorage) GetTasksByTerm(ctx context.Context, term int64) ([]*models.Task, error) {
+func (s *PGStorage) GetTasksByTerm(ctx context.Context, term *models.Term) ([]*models.Task, error) {
 	query, args, err := sq.Select(allColumns...).
 		From(tasksTableName).
 		Where(
-			sq.Eq{termColumnName: term},
+			sq.Eq{termColumnName: term.ValueInt},
 		).
 		PlaceholderFormat(sq.Dollar).ToSql()
 
@@ -31,7 +31,7 @@ func (s *PGStorage) GetTasksByTerm(ctx context.Context, term int64) ([]*models.T
 	tasks := make([]*models.Task, 0)
 	for rows.Next() {
 		var task models.Task
-		if err := rows.Scan(&task.ID, &task.Title); err != nil {
+		if err := rows.Scan(&task.ID, &task.Title, &task.Term, &task.CreatedAt, &task.UpdatedAt, &task.DoneAt); err != nil {
 			return nil, errors.Wrap(err, "failed to scan row")
 		}
 		tasks = append(tasks, &task)

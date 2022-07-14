@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/alexadastra/hisho/hisho-core-service/internal/app/models"
 	service2 "github.com/alexadastra/hisho/hisho-core-service/internal/app/service"
 	"github.com/alexadastra/hisho/hisho-core-service/pkg/api"
 )
@@ -36,21 +36,26 @@ func (hs *HishoCoreService) Ping(ctx context.Context, request *api.PingRequest) 
 
 // GetTasksByTerm gets tasks for terms (today, week, other etc.)
 func (hs *HishoCoreService) GetTasksByTerm(ctx context.Context, request *api.TaskRequest) (*api.TasksResponse, error) {
-	tasks, err := hs.service.GetTasksByTerm(ctx, request.Term.String())
+	tasks, err := hs.service.GetTasksByTerm(ctx, models.TermFromProto(&request.Term))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tasks by term")
 	}
 	tasksToReturn := make([]*api.Task, 0, len(tasks))
 	for _, task := range tasks {
-		tasksToReturn = append(tasksToReturn, &api.Task{
-			Title:     task.Title,
-			Term:      api.Term_name[int32(task.Term)],
-			CreatedAt: timestamppb.New(*task.CreatedAt),
-			UpdatedAt: timestamppb.New(*task.UpdatedAt),
-			DoneAt:    timestamppb.New(*task.DoneAt),
-		})
+		tasksToReturn = append(tasksToReturn, models.ToProto(task))
 	}
 	return &api.TasksResponse{
 		Tasks: tasksToReturn,
+	}, nil
+}
+
+// AddTask adds new task
+func (hs *HishoCoreService) AddTask(ctx context.Context, task *api.Task) (*api.Msg, error) {
+	err := hs.service.AddTask(ctx, models.FromProto(task))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to add task")
+	}
+	return &api.Msg{
+		Message: "task added successfully!",
 	}, nil
 }

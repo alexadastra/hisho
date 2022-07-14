@@ -17,7 +17,14 @@ service HishoCoreService {
   // get tasks for terms (today, week, other etc.)
   rpc GetTasksByTerm(TaskRequest) returns (TasksResponse) {
     option (google.api.http) = {
-      post: "/v1/tasks/by_term"
+      post: "/v1/tasks/get_by_term"
+      body: "*"
+    };
+  }
+  // add new task
+  rpc AddTask(Task) returns (Msg) {
+    option (google.api.http) = {
+      post: "/v1/tasks/add"
       body: "*"
     };
   }
@@ -33,7 +40,7 @@ message PingResponse {
 }
 
 message Task {
-  int64 id = 1;
+  uint64 id = 1;
   string title = 2;
   string term = 3;
   google.protobuf.Timestamp created_at = 4;
@@ -53,4 +60,8 @@ message TaskRequest {
 
 message TasksResponse {
   repeated Task tasks = 1;
+}
+
+message Msg {
+  string message = 1;
 }

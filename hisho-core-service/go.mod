@@ -22,7 +22,6 @@ require (
 require google.golang.org/protobuf v1.28.0
 
 require (
-	github.com/go-critic/go-critic v0.6.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
@@ -34,11 +33,10 @@ require (
 	github.com/jackc/pgtype v1.11.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
-	github.com/quasilyte/go-ruleguard/dsl v0.3.16 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20220712132514-bdd2acd4974d // indirect
+	google.golang.org/genproto v0.0.0-20220713161829-9c7dac0a6568 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 )
