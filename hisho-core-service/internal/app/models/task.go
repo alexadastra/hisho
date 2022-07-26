@@ -31,7 +31,7 @@ func FromProto(apiTask *api.Task) *Task {
 // ToProto converts internal struct from the one from proto-file
 func ToProto(task *Task) *api.Task {
 	return &api.Task{
-		Id:        uint64(task.ID),
+		Id:        int64(task.ID),
 		Title:     task.Title,
 		Term:      api.Term_name[int32(task.Term)],
 		CreatedAt: toTimestampb(task.CreatedAt),
