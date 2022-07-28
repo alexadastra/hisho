@@ -83,10 +83,11 @@ func main() {
 	// Setup secondary HTTP handlers
 	// Listen and serve handlers
 	srv := &http.Server{
-		Handler:      router,
-		Addr:         fmt.Sprintf("%s:%d", basicConfig.Host, basicConfig.HTTPSecondaryPort),
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
+		Handler:           router,
+		Addr:              fmt.Sprintf("%s:%d", basicConfig.Host, basicConfig.HTTPSecondaryPort),
+		WriteTimeout:      15 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		ReadHeaderTimeout: 15 * time.Second,
 	}
 
 	// Serve
