@@ -9,13 +9,13 @@ import (
 )
 
 // AddTask handles task adding
-func (s *Service) AddTask(ctx context.Context, task *models.Task) error {
-	rowsAffected, err := s.storage.AddTask(ctx, task)
+func (s *Service) AddTask(ctx context.Context, task *models.Task) (*models.Task, error) {
+	rows, err := s.storage.AddTasks(ctx, []*models.Task{task})
 	if err != nil {
-		return errors.Wrap(err, "failed to save task")
+		return nil, errors.Wrap(err, "failed to save task")
 	}
-	if rowsAffected == 0 {
-		return errors.New("task wasn't added")
+	if len(rows) == 0 {
+		return nil, errors.New("task wasn't added")
 	}
-	return nil
+	return rows[0], nil
 }

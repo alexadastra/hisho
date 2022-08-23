@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/alexadastra/hisho/hisho-core-service/internal/app/storage"
-	"github.com/jackc/pgx/v4"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
 
@@ -22,12 +22,12 @@ var allColumns = []string{idColumnName, titleColumnName, termColumnName, created
 
 // PGStorage implements Storage with Postgres database
 type PGStorage struct {
-	conn *pgx.Conn
+	conn *sqlx.DB
 }
 
 // NewStorage constructs new PGStorage
 func NewStorage(ctx context.Context, host string) (storage.Storage, error) {
-	conn, err := pgx.Connect(ctx, host)
+	conn, err := sqlx.Connect("postgres", host)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to connect to database")
 	}
