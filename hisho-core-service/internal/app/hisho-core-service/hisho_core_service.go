@@ -51,7 +51,7 @@ func (hs *HishoCoreService) GetTasksByTerm(ctx context.Context, request *api.Tas
 
 // AddTask adds new task
 func (hs *HishoCoreService) AddTask(ctx context.Context, task *api.Task) (*api.Msg, error) {
-	err := hs.service.AddTask(ctx, models.FromProto(task))
+	_, err := hs.service.AddTask(ctx, models.FromProto(task))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to add task")
 	}

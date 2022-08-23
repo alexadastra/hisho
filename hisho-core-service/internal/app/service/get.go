@@ -10,7 +10,7 @@ import (
 
 // GetTodaysTasks returns tasks that were created today
 func (s *Service) GetTodaysTasks(ctx context.Context) ([]*models.Task, error) {
-	from, err := time.Parse(timeFormat, time.Now().Format(timeFormat))
+	from, err := time.Parse(timeFormat, time.Now().UTC().Format(timeFormat))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to format 'from' date")
 	}

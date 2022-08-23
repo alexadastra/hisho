@@ -5,26 +5,50 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/alexadastra/hisho/hisho-core-service/internal/app/models"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/pkg/errors"
 )
 
-// AddTask adds task to DB
-func (s *PGStorage) AddTask(ctx context.Context, task *models.Task) (int64, error) {
-	q, args, err := sq.Insert(tasksTableName).
-		Values(
-			task.ID, task.Title, task.Term, task.CreatedAt, task.UpdatedAt, task.DoneAt).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
+var (
+	insertQuery = sq.
+		Insert(tasksTableName).
+		Columns(titleColumnName, termColumnName, createdAtColumnName, updatedAtColumnName, doneAtColumnName).
+		Suffix("on conflict do nothing returning *").
+		PlaceholderFormat(sq.Dollar)
+)
 
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to form the insert query")
+// AddTasks adds task to DB
+func (s *PGStorage) AddTasks(ctx context.Context, tasks []*models.Task) ([]*models.Task, error) {
+	query := insertQuery
+	for _, task := range tasks {
+		query = query.Values(task.Title, task.Term, task.CreatedAt, task.UpdatedAt, task.DoneAt)
 	}
 
-	ct, err := s.conn.Exec(ctx, q, args...)
+	q, args, err := query.ToSql()
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to execute the insert query")
+		return nil, errors.Wrap(err, "failed to form the insert query")
 	}
 
-	return ct.RowsAffected(), nil
+	rows, err := s.conn.QueryxContext(ctx, q, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute the insert query")
+	}
+
+	defer rows.Close()
+
+	return scanTasks(rows)
+}
+
+func scanTasks(rows *sqlx.Rows) ([]*models.Task, error) {
+	tasks := make([]*models.Task, 0)
+	for rows.Next() {
+		task := &models.Task{}
+		if err := rows.StructScan(task); err != nil {
+			return nil, errors.Wrap(err, "falied to scan row into struct")
+		}
+		tasks = append(tasks, task)
+	}
+
+	return tasks, nil
 }
