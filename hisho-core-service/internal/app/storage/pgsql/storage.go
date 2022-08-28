@@ -5,6 +5,7 @@ import (
 
 	"github.com/alexadastra/hisho/hisho-core-service/internal/app/storage"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq" // PostgreSQL database driver
 	"github.com/pkg/errors"
 )
 

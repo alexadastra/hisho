@@ -9,8 +9,8 @@ import (
 )
 
 // AddTask handles task adding
-func (s *Service) AddTask(ctx context.Context, task *models.Task) (*models.Task, error) {
-	rows, err := s.storage.AddTasks(ctx, []*models.Task{task})
+func (s *Service) AddTask(ctx context.Context, tasks []*models.Task) (*models.Task, error) {
+	rows, err := s.storage.AddTasks(ctx, tasks)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to save task")
 	}

@@ -22,7 +22,7 @@ service HishoCoreService {
     };
   }
   // add new task
-  rpc AddTask(Task) returns (Msg) {
+  rpc AddTask(Task) returns (Task) {
     option (google.api.http) = {
       post: "/v1/tasks/add"
       body: "*"
@@ -39,19 +39,20 @@ message PingResponse {
   string value = 2;
 }
 
+enum Term {
+  UNDEFINED = 0;
+  OTHER = 1;
+  WEEK = 2;
+  TODAY = 3;
+}
+
 message Task {
   uint64 id = 1;
   string title = 2;
-  string term = 3;
+  Term term = 3;
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
   google.protobuf.Timestamp done_at = 6;
-}
-
-enum Term {
-  OTHER = 0;
-  WEEK = 1;
-  TODAY = 2;
 }
 
 message TaskRequest {
@@ -60,8 +61,4 @@ message TaskRequest {
 
 message TasksResponse {
   repeated Task tasks = 1;
-}
-
-message Msg {
-  string message = 1;
 }

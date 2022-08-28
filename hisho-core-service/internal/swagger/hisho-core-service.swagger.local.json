@@ -52,7 +52,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/hisho_core_serviceMsg"
+              "$ref": "#/definitions/hisho_core_serviceTask"
             }
           },
           "default": {
@@ -112,14 +112,6 @@
     }
   },
   "definitions": {
-    "hisho_core_serviceMsg": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
-    },
     "hisho_core_servicePingRequest": {
       "type": "object",
       "properties": {
@@ -151,7 +143,7 @@
           "type": "string"
         },
         "term": {
-          "type": "string"
+          "$ref": "#/definitions/hisho_core_serviceTerm"
         },
         "created_at": {
           "type": "string",
@@ -189,11 +181,12 @@
     "hisho_core_serviceTerm": {
       "type": "string",
       "enum": [
+        "UNDEFINED",
         "OTHER",
         "WEEK",
         "TODAY"
       ],
-      "default": "OTHER"
+      "default": "UNDEFINED"
     },
     "protobufAny": {
       "type": "object",
