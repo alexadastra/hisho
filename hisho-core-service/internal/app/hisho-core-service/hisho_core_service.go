@@ -36,13 +36,17 @@ func (hs *HishoCoreService) Ping(ctx context.Context, request *api.PingRequest) 
 
 // GetTasksByTerm gets tasks for terms (today, week, other etc.)
 func (hs *HishoCoreService) GetTasksByTerm(ctx context.Context, request *api.TaskRequest) (*api.TasksResponse, error) {
-	tasks, err := hs.service.GetTasksByTerm(ctx, models.TermFromProto(&request.Term))
+	term, err := models.NewTermFromString(request.Term.String())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create term entity")
+	}
+	tasks, err := hs.service.GetTasksByTerm(ctx, term)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tasks by term")
 	}
 	tasksToReturn := make([]*api.Task, 0, len(tasks))
 	for _, task := range tasks {
-		tasksToReturn = append(tasksToReturn, models.ToProto(task))
+		tasksToReturn = append(tasksToReturn, task.ToProto())
 	}
 	return &api.TasksResponse{
 		Tasks: tasksToReturn,
@@ -50,10 +54,14 @@ func (hs *HishoCoreService) GetTasksByTerm(ctx context.Context, request *api.Tas
 }
 
 // AddTask adds new task
-func (hs *HishoCoreService) AddTask(ctx context.Context, task *api.Task) (*api.Msg, error) {
-	_, err := hs.service.AddTask(ctx, models.FromProto(task))
+func (hs *HishoCoreService) AddTask(ctx context.Context, task *api.Task) (*api.Task, error) {
+	taskInternal, err := models.NewTask(task)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new task")
+	}
+	taskAdded, err := hs.service.AddTask(ctx, []*models.Task{taskInternal})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to add task")
 	}
-	return &api.Msg{}, nil
+	return taskAdded.ToProto(), nil
 }

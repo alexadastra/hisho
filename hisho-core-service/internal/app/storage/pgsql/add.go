@@ -22,7 +22,7 @@ var (
 func (s *PGStorage) AddTasks(ctx context.Context, tasks []*models.Task) ([]*models.Task, error) {
 	query := insertQuery
 	for _, task := range tasks {
-		query = query.Values(task.Title, task.Term, task.CreatedAt, task.UpdatedAt, task.DoneAt)
+		query = query.Values(task.Title, task.Term.ValueInt, task.CreatedAt, task.UpdatedAt, task.DoneAt)
 	}
 
 	q, args, err := query.ToSql()
@@ -44,9 +44,22 @@ func scanTasks(rows *sqlx.Rows) ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
 	for rows.Next() {
 		task := &models.Task{}
-		if err := rows.StructScan(task); err != nil {
+		var termVal int64
+		if err := rows.Scan(
+			&task.ID,
+			&task.Title,
+			&termVal,
+			&task.CreatedAt,
+			&task.UpdatedAt,
+			&task.DoneAt,
+		); err != nil {
 			return nil, errors.Wrap(err, "falied to scan row into struct")
 		}
+		term, err := models.NewTermFromInt(termVal)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create new term")
+		}
+		task.Term = term
 		tasks = append(tasks, task)
 	}
 

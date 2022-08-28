@@ -3,15 +3,15 @@ module github.com/alexadastra/hisho/hisho-core-service/pkg/api
 go 1.18
 
 require (
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.3
-	google.golang.org/genproto v0.0.0-20220713161829-9c7dac0a6568
-	google.golang.org/grpc v1.48.0
-	google.golang.org/protobuf v1.28.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
+	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
+	google.golang.org/grpc v1.49.0
+	google.golang.org/protobuf v1.28.1
 )
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
+	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
