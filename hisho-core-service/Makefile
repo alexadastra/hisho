@@ -187,19 +187,17 @@ local_clean: stop rm
 
 .PHONY: generate
 generate:
-	sudo rm -rf pkg
-	sudo rm -rf internal/swagger/*.json
-	${MANAGER} run -v ./:/defs --name protoc-all -d namely/protoc-all:latest \
-                -d api -o pkg/api -i third_party/googleapis -i pkg/api -l go --with-gateway
-	${MANAGER} wait protoc-all
-	sudo cp -r ./pkg/api/pkg/api/* ./pkg/api
-	sudo rm -rf pkg/api/pkg
-	sudo mv ./pkg/api/${APP}.swagger.json ./internal/swagger
-	sudo chmod -R 777 ./pkg
-	sudo chmod -R 777 ./internal/swagger/${APP}.swagger.json
-	cd ./internal/swagger && cp ./${APP}.swagger.json ./${APP}.swagger.local.json
-	cd ./internal/swagger && mv ./${APP}.swagger.json ./${APP}.swagger.k8s.json
-	cd ./internal/swagger && sed -i '' -e 's/v1/${NAMESPACE}\/${APP}\/v1/g' ./${APP}.swagger.k8s.json
-	cd ./pkg/api && go mod init ${PROJECT}/pkg/api && go mod tidy
-	${MANAGER} rm protoc-all
-	sudo rm -rf gen
+	@echo "+ $@"
+	@rm -rf pkg
+	@rm -rf internal/swagger/*.json
+	@${MANAGER} run -v ./:/defs --name protoc-all -d namely/protoc-all:latest \
+                -d api -o tmp -i third_party/googleapis -i pkg/api -l go --with-gateway
+	@${MANAGER} wait protoc-all
+	@${MANAGER} rm -f protoc-all
+	@mv ./tmp/pkg .
+	@mv ./tmp/${APP}.swagger.json ./internal/swagger
+	@rm -rf tmp
+	@cd ./internal/swagger && cp ./${APP}.swagger.json ./${APP}.swagger.local.json
+	@cd ./internal/swagger && mv ./${APP}.swagger.json ./${APP}.swagger.k8s.json
+	@cd ./internal/swagger && sed -i '' -e 's/v1/${NAMESPACE}\/${APP}\/v1/g' ./${APP}.swagger.k8s.json
+	@cd ./pkg/api && go mod init ${PROJECT}/pkg/api && go mod tidy
