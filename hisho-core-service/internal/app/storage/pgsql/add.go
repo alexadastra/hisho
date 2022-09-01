@@ -13,7 +13,7 @@ import (
 var (
 	insertQuery = sq.
 		Insert(tasksTableName).
-		Columns(titleColumnName, termColumnName, createdAtColumnName, updatedAtColumnName, doneAtColumnName).
+		Columns(titleColumnName, termColumnName, createdAtColumnName, updatedAtColumnName, closedAtColumnName).
 		Suffix("on conflict do nothing returning *").
 		PlaceholderFormat(sq.Dollar)
 )
@@ -64,4 +64,21 @@ func scanTasks(rows *sqlx.Rows) ([]*models.Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func scanTask(rows *sqlx.Rows) (*models.Task, error) {
+	tasks, err := scanTasks(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(tasks) > 1 {
+		return nil, errors.New("more than one rows by PK")
+	}
+
+	if len(tasks) == 0 {
+		return nil, nil
+	}
+
+	return tasks[0], nil
 }

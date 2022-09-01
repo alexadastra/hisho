@@ -10,16 +10,18 @@ import (
 )
 
 const (
-	tasksTableName      = "tasks"
-	idColumnName        = "id"
-	titleColumnName     = "title"
-	termColumnName      = "term"
-	createdAtColumnName = "created_at"
-	updatedAtColumnName = "updated_at"
-	doneAtColumnName    = "done_at"
+	tasksTableName         = "tasks"
+	idColumnName           = "id"
+	titleColumnName        = "title"
+	termColumnName         = "term"
+	createdAtColumnName    = "created_at"
+	updatedAtColumnName    = "updated_at"
+	closedAtColumnName     = "closed_at"
+	closedReasonColumnName = "closed_reason"
+	isGreenColumnName      = "is_green"
 )
 
-var allColumns = []string{idColumnName, titleColumnName, termColumnName, createdAtColumnName, updatedAtColumnName, doneAtColumnName}
+var allColumns = []string{idColumnName, titleColumnName, termColumnName, createdAtColumnName, updatedAtColumnName, closedAtColumnName}
 
 // PGStorage implements Storage with Postgres database
 type PGStorage struct {
