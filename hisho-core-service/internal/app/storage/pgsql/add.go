@@ -5,24 +5,29 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/alexadastra/hisho/hisho-core-service/internal/app/models"
-	"github.com/jmoiron/sqlx"
 
 	"github.com/pkg/errors"
 )
 
-var (
-	insertQuery = sq.
-		Insert(tasksTableName).
-		Columns(titleColumnName, termColumnName, createdAtColumnName, updatedAtColumnName, closedAtColumnName).
-		Suffix("on conflict do nothing returning *").
-		PlaceholderFormat(sq.Dollar)
-)
-
 // AddTasks adds task to DB
 func (s *PGStorage) AddTasks(ctx context.Context, tasks []*models.Task) ([]*models.Task, error) {
-	query := insertQuery
+	query := sq.
+		Insert(tasksTableName).
+		Columns(allColumns...).
+		Suffix("on conflict do nothing returning *").
+		PlaceholderFormat(sq.Dollar)
+
 	for _, task := range tasks {
-		query = query.Values(task.Title, task.Term.ValueInt, task.CreatedAt, task.UpdatedAt, task.DoneAt)
+		query = query.Values(
+			task.ID,
+			task.Title,
+			task.Term.ValueInt,
+			task.IsGreen,
+			task.CreatedAt,
+			task.UpdatedAt,
+			task.ClosedAt,
+			task.ClosedReason,
+		)
 	}
 
 	q, args, err := query.ToSql()
@@ -38,47 +43,4 @@ func (s *PGStorage) AddTasks(ctx context.Context, tasks []*models.Task) ([]*mode
 	defer rows.Close()
 
 	return scanTasks(rows)
-}
-
-func scanTasks(rows *sqlx.Rows) ([]*models.Task, error) {
-	tasks := make([]*models.Task, 0)
-	for rows.Next() {
-		task := &models.Task{}
-		var termVal int64
-		if err := rows.Scan(
-			&task.ID,
-			&task.Title,
-			&termVal,
-			&task.CreatedAt,
-			&task.UpdatedAt,
-			&task.DoneAt,
-		); err != nil {
-			return nil, errors.Wrap(err, "falied to scan row into struct")
-		}
-		term, err := models.NewTermFromInt(termVal)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to create new term")
-		}
-		task.Term = term
-		tasks = append(tasks, task)
-	}
-
-	return tasks, nil
-}
-
-func scanTask(rows *sqlx.Rows) (*models.Task, error) {
-	tasks, err := scanTasks(rows)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(tasks) > 1 {
-		return nil, errors.New("more than one rows by PK")
-	}
-
-	if len(tasks) == 0 {
-		return nil, nil
-	}
-
-	return tasks[0], nil
 }

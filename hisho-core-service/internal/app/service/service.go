@@ -1,18 +1,29 @@
 package service
 
 import (
-	"github.com/alexadastra/hisho/hisho-core-service/internal/app/storage"
+	"context"
+	"time"
+
+	"github.com/alexadastra/hisho/hisho-core-service/internal/app/models"
 )
 
-const timeFormat = "2006/01/02"
+// Storage stores tasks
+type Storage interface {
+	AddTasks(ctx context.Context, tasks []*models.Task) ([]*models.Task, error)
+	GetTasksByTerm(ctx context.Context, term *models.Term) ([]*models.Task, error)
+	GetTasksByTermAndLimits(ctx context.Context, term *models.Term, limit uint64, offset uint64) ([]*models.Task, error)
+	EditTask(ctx context.Context, task models.Task) (*models.Task, error)
+	ChangeTaskStatus(ctx context.Context, id int64, closedAt *time.Time, reason string) (*models.Task, error)
+	GetTaskByID(ctx context.Context, id int64) (*models.Task, error)
+}
 
 // Service handles everything
 type Service struct {
-	storage storage.Storage
+	storage Storage
 }
 
 // NewService constructs new Service
-func NewService(storage storage.Storage) *Service {
+func NewService(storage Storage) *Service {
 	return &Service{
 		storage: storage,
 	}
