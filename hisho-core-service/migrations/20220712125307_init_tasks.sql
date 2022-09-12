@@ -4,9 +4,11 @@ CREATE TABLE tasks (
     id bigint primary key,
     title varchar not null,
     term int not null default 0, 
+    is_green bool not null default false,
     created_at timestamp not null default now(),
     updated_at timestamp not null default now(),
-    done_at timestamp
+    closed_at timestamp,
+    closed_reason text
 );
 -- +goose StatementEnd
 
