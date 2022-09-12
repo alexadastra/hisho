@@ -62,7 +62,7 @@ push: build
 .PHONY: run
 run: build
 	@echo "+ $@"
-	@{MANAGER} run --name ${CONTAINER_NAME} -p ${HTTP_PORT}:${HTTP_PORT} \
+	@${MANAGER} run --name ${CONTAINER_NAME} -p ${HTTP_PORT}:${HTTP_PORT} \
 		-p ${HTTP_SECONDARY_PORT}:${HTTP_SECONDARY_PORT} \
 		-p ${GRPC_PORT}:${GRPC_PORT} \
 		-d $(CONTAINER_IMAGE):$(RELEASE)
@@ -101,27 +101,23 @@ deploy: push
 	@echo "+ $@"
 	helm upgrade ${CONTAINER_NAME} -f charts/${VALUES}.yaml charts --kube-context ${INFRASTRUCTURE} --namespace ${NAMESPACE} --version=${RELEASE} --install --wait --debug
 
-HAS_DEPLOYMENT := $(shell kubectl get deployments | grep ${APP})
-HAS_SERVICE := $(shell kubectl get services | grep ${APP})
-HAS_CONFIGMAP := $(shell kubectl get deployments | grep ${APP})
-
 .PHONY: delete_service
 delete_service:
-ifdef HAS_SERVICE
+ifdef $(shell kubectl get services | grep ${APP})
 	@echo "+ $@"
 	kubectl delete -n ${NAMESPACE} service ${APP}
 endif
 
 .PHONY: delete_deployment
 delete_deployment:
-ifdef HAS_DEPLOYMENT
+ifdef $(shell kubectl get deployments | grep ${APP})
 	@echo "+ $@"
 	kubectl delete -n ${NAMESPACE} deployment ${APP}
 endif
 
 .PHONY: delete_configmap
 delete_configmap:
-ifdef HAS_CONFIGMAP
+ifdef $(shell kubectl get deployments | grep ${APP})
 	@echo "+ $@"
 	kubectl delete -n ${NAMESPACE} configmap ${APP}-configmap
 endif

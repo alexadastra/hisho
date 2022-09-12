@@ -3,7 +3,7 @@ package pgsql
 import (
 	"context"
 
-	"github.com/alexadastra/hisho/hisho-core-service/internal/app/storage"
+	"github.com/alexadastra/hisho/hisho-core-service/internal/app/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // PostgreSQL database driver
 	"github.com/pkg/errors"
@@ -14,14 +14,17 @@ const (
 	idColumnName           = "id"
 	titleColumnName        = "title"
 	termColumnName         = "term"
+	isGreenColumnName      = "is_green"
 	createdAtColumnName    = "created_at"
 	updatedAtColumnName    = "updated_at"
 	closedAtColumnName     = "closed_at"
 	closedReasonColumnName = "closed_reason"
-	isGreenColumnName      = "is_green"
 )
 
-var allColumns = []string{idColumnName, titleColumnName, termColumnName, createdAtColumnName, updatedAtColumnName, closedAtColumnName}
+var allColumns = []string{
+	idColumnName, titleColumnName, termColumnName, isGreenColumnName,
+	createdAtColumnName, updatedAtColumnName, closedAtColumnName, closedReasonColumnName,
+}
 
 // PGStorage implements Storage with Postgres database
 type PGStorage struct {
@@ -29,7 +32,7 @@ type PGStorage struct {
 }
 
 // NewStorage constructs new PGStorage
-func NewStorage(ctx context.Context, host string) (storage.Storage, error) {
+func NewStorage(ctx context.Context, host string) (*PGStorage, error) {
 	conn, err := sqlx.Connect("postgres", host)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to connect to database")
@@ -38,4 +41,49 @@ func NewStorage(ctx context.Context, host string) (storage.Storage, error) {
 	return &PGStorage{
 		conn: conn,
 	}, nil
+}
+
+func scanTasks(rows *sqlx.Rows) ([]*models.Task, error) {
+	tasks := make([]*models.Task, 0)
+	for rows.Next() {
+		task := &models.Task{}
+		var termVal int64
+		if err := rows.Scan(
+			&task.ID,
+			&task.Title,
+			&termVal,
+			&task.IsGreen,
+			&task.CreatedAt,
+			&task.UpdatedAt,
+			&task.ClosedAt,
+			&task.ClosedReason,
+		); err != nil {
+			return nil, errors.Wrap(err, "falied to scan row into struct")
+		}
+		term, err := models.NewTermFromInt(termVal)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create new term")
+		}
+		task.Term = term
+		tasks = append(tasks, task)
+	}
+
+	return tasks, nil
+}
+
+func scanTask(rows *sqlx.Rows) (*models.Task, error) {
+	tasks, err := scanTasks(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(tasks) > 1 {
+		return nil, errors.New("more than one rows by PK")
+	}
+
+	if len(tasks) == 0 {
+		return nil, nil
+	}
+
+	return tasks[0], nil
 }

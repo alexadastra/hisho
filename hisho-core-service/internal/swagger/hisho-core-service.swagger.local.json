@@ -68,6 +68,39 @@
             "in": "body",
             "required": true,
             "schema": {
+              "$ref": "#/definitions/hisho_core_serviceAddTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HishoCoreService"
+        ]
+      }
+    },
+    "/v1/tasks/edit": {
+      "post": {
+        "summary": "edit task",
+        "operationId": "HishoCoreService_EditTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/hisho_core_serviceTask"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
               "$ref": "#/definitions/hisho_core_serviceTask"
             }
           }
@@ -109,9 +142,87 @@
           "HishoCoreService"
         ]
       }
+    },
+    "/v1/tasks/set_status": {
+      "post": {
+        "summary": "set task status",
+        "operationId": "HishoCoreService_ChangeTaskStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/hisho_core_serviceTask"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/hisho_core_serviceChangeTaskStatusRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HishoCoreService"
+        ]
+      }
     }
   },
   "definitions": {
+    "hisho_core_serviceAddTaskRequest": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "term": {
+          "$ref": "#/definitions/hisho_core_serviceTerm"
+        },
+        "is_green": {
+          "type": "boolean"
+        }
+      }
+    },
+    "hisho_core_serviceChangeTaskStatusRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "hisho_core_servicePage": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "hisho_core_servicePingRequest": {
       "type": "object",
       "properties": {
@@ -153,9 +264,15 @@
           "type": "string",
           "format": "date-time"
         },
-        "done_at": {
+        "closed_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "is_green": {
+          "type": "boolean"
+        },
+        "closed_reason": {
+          "type": "string"
         }
       }
     },
@@ -164,6 +281,9 @@
       "properties": {
         "term": {
           "$ref": "#/definitions/hisho_core_serviceTerm"
+        },
+        "page": {
+          "$ref": "#/definitions/hisho_core_servicePage"
         }
       }
     },

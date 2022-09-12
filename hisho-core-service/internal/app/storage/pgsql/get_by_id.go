@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// GetTaskByID gets task by id
 func (s *PGStorage) GetTaskByID(ctx context.Context, id int64) (*models.Task, error) {
 	query, args, err := sq.Select(allColumns...).
 		From(tasksTableName).

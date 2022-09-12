@@ -10,12 +10,13 @@ import (
 	sq "github.com/Masterminds/squirrel"
 )
 
-// SetTaskAsDone updates task setting 'done_at' as now()
+// ChangeTaskStatus changes task 'closed_at' fiels
 func (s *PGStorage) ChangeTaskStatus(ctx context.Context, id int64, closedAt *time.Time, reason string) (*models.Task, error) {
 	query, args, err := sq.Update(tasksTableName).
 		SetMap(map[string]interface{}{
-			closedAtColumnName: closedAt,
+			closedAtColumnName:     closedAt,
 			closedReasonColumnName: reason,
+			updatedAtColumnName:    time.Now().UTC(),
 		}).
 		Where(idColumnName, id).
 		PlaceholderFormat(sq.Dollar).
@@ -35,12 +36,14 @@ func (s *PGStorage) ChangeTaskStatus(ctx context.Context, id int64, closedAt *ti
 	return scanTask(rows)
 }
 
+// EditTask sets editable task fields
 func (s *PGStorage) EditTask(ctx context.Context, task models.Task) (*models.Task, error) {
 	query, args, err := sq.Update(tasksTableName).
 		SetMap(map[string]interface{}{
-			titleColumnName: task.Title,
-			termColumnName: task.Term.ValueInt,
-			isGreenColumnName: task.IsGreen,
+			titleColumnName:     task.Title,
+			termColumnName:      task.Term.ValueInt,
+			isGreenColumnName:   task.IsGreen,
+			updatedAtColumnName: time.Now().UTC(),
 		}).
 		Where(idColumnName, task.ID).
 		PlaceholderFormat(sq.Dollar).

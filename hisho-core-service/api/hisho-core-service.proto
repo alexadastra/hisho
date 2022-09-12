@@ -22,13 +22,32 @@ service HishoCoreService {
     };
   }
   // add new task
-  rpc AddTask(Task) returns (Task) {
+  rpc AddTask(AddTaskRequest) returns (Task) {
     option (google.api.http) = {
       post: "/v1/tasks/add"
       body: "*"
     };
   }
+  // set task status
+  rpc ChangeTaskStatus(ChangeTaskStatusRequest) returns (Task) {
+    option (google.api.http) = {
+      post: "/v1/tasks/set_status"
+      body: "*"
+    };
+  }
+  // edit task
+  rpc EditTask(Task) returns (Task) {
+    option (google.api.http) = {
+      post: "/v1/tasks/edit"
+      body: "*"
+    };
+  }
 }
+
+message Page {
+  int32 number = 1;
+  int32 limit = 2;
+} 
 
 message PingRequest {
   string value = 1;
@@ -46,19 +65,35 @@ enum Term {
   TODAY = 3;
 }
 
+message AddTaskRequest {
+  string title = 1;
+  Term term = 2;
+  bool is_green = 3;
+}
+
 message Task {
   uint64 id = 1;
   string title = 2;
   Term term = 3;
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
-  google.protobuf.Timestamp done_at = 6;
+  google.protobuf.Timestamp closed_at = 6;
+  bool is_green = 7;
+  string closed_reason = 8;
 }
 
 message TaskRequest {
   Term term = 1;
+  Page page = 2;
 }
 
 message TasksResponse {
   repeated Task tasks = 1;
+}
+
+message ChangeTaskStatusRequest {
+  uint64 id = 1;
+  string from = 2;
+  string to = 3;
+  string reason = 4; 
 }
