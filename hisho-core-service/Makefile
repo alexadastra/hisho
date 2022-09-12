@@ -1,6 +1,6 @@
 APP=hisho-core-service
 PROJECT=github.com/alexadastra/hisho/${APP}
-REGISTRY?=ghcr.io/alexadastra/${APP}
+REGISTRY?=ghcr.io/alexadastra/hisho/${APP}
 CA_DIR?=certs
 
 # Use the 0.0.0 tag for testing, it shouldn't clobber any release builds
