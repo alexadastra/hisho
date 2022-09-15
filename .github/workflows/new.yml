@@ -3,15 +3,93 @@ name: Hisho-core-service
 on:
   workflow_dispatch:
 
+env:
+  APP: hisho-core-service
+  PROJECT: github.com/alexadastra/hisho/hisho-core-service
+  REGISTRY: ghcr.io/alexadastra/hisho-core-service
+  REPO_INFO: $(git config --get remote.origin.url)
+  CONTAINER_IMAGE: ghcr.io/alexadastra/hisho/hisho-core-service/hisho-core-service
+  CONTAINER_NAME: hisho-core-service-default
+  GOOS: linux
+  GOARCH: amd64
+  RELEASE: 0.0.3
+  COMMIT: git-$(git rev-parse --short HEAD)
+
+
 jobs:
-  build:
-    # The type of runner that the job will run on
+  test:
     runs-on: self-hosted
+    environment: env
+    defaults:
+      run:
+        shell: bash
+        working-directory: hisho-core-service
+
+    steps:
+     - uses: actions/checkout@v2
+     - uses: actions/setup-go@v3
+       with:
+        go-version: '1.18'
+        check-latest: true
+        cache: true
+        cache-dependency-path: hisho-core-service/go.sum       
+     - name: Run golangci-lint
+       uses: golangci/golangci-lint-action@v3
+       with:
+        version: v1.47
+        github-token: ${{ secrets.TOKEN }}
+        working-directory: hisho-core-service
+        args: -c .golangci.yml
+        skip-cache: true
+        skip-build-cache: true
+        skip-pkg-cache: true
+        only-new-issues: false
+     - name: Run Tests
+       run: |
+        go test -v -race -cover -tags cgo $(go list ${{ env.PROJECT }}/...)
+
+  build:
+    needs: test
+    runs-on: self-hosted
+    environment: env
+    permissions:
+      packages: write
+    defaults:
+      run:
+        shell: bash
+        working-directory: hisho-core-service
 
     steps:
       - uses: actions/checkout@v2
-      - name: build
-        run: make build
-
-
-
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
+          check-latest: true
+          cache: true
+          cache-dependency-path: hisho-core-service/go.sum
+      - name: Create Binary
+        run: |
+          CGO_ENABLED=0 GOOS=${{ env.GOOS }} GOARCH=${{ env.GOARCH }} \
+          go build -a -installsuffix cgo -ldflags "-s -w \
+          -X ${{ env.PROJECT }}/internal/version.RELEASE=${{ env.RELEASE }} \
+          -X ${{ env.PROJECT }}/internal/version.COMMIT=${{ env.COMMIT }} \
+          -X ${{ env.PROJECT }}/internal/version.REPO=${{ env.REPO_INFO }}" \
+          -o bin/${{ env.GOOS }}-${{ env.GOARCH }}/${{ env.APP }} \
+          ./cmd/${{ env.APP }}/main.go
+      - name: Create Certs
+        run: |
+          docker run --name ${{ env.CONTAINER_NAME }}-certs -d alpine:latest sh -c \
+            "apk --update upgrade && apk add ca-certificates && update-ca-certificates"
+          docker wait ${{ env.CONTAINER_NAME }}-certs
+          mkdir -p certs
+          docker cp ${{ env.CONTAINER_NAME }}-certs:/etc/ssl/certs/ca-certificates.crt certs
+          docker rm -f ${{ env.CONTAINER_NAME }}-certs
+      - name: Build Container
+        run: |
+          docker build --pull -t ${{ env.CONTAINER_IMAGE }}:${{ env.RELEASE }} .
+      - name: Push Container To Registry
+        env:
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          echo "$PASSWORD" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+          docker push ${{ env.CONTAINER_IMAGE }}:${{ env.RELEASE }}
