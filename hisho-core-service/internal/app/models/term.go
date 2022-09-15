@@ -6,15 +6,15 @@ import (
 
 var (
 	stringToIntMap = map[string]int64{
-		"TODAY": 0,
-		"WEEK":  1,
-		"OTHER": 2,
+		"TERM_TODAY": 0,
+		"TERM_WEEK":  1,
+		"TERM_OTHER": 2,
 	}
 
 	intToStringMap = map[int64]string{
-		0: "TODAY",
-		1: "WEEK",
-		2: "OTHER",
+		0: "TERM_TODAY",
+		1: "TERM_WEEK",
+		2: "TERM_OTHER",
 	}
 )
 

@@ -189,6 +189,7 @@ generate:
 	@${MANAGER} run -v ./:/defs --name protoc-all -d namely/protoc-all:latest \
                 -d api -o tmp -i third_party/googleapis -i pkg/api -l go --with-gateway
 	@${MANAGER} wait protoc-all
+	@${MANAGER} logs protoc-all
 	@${MANAGER} rm -f protoc-all
 	@mv ./tmp/pkg .
 	@mv ./tmp/${APP}.swagger.json ./internal/swagger
