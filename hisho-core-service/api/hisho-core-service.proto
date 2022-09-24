@@ -86,6 +86,7 @@ message Task {
   google.protobuf.Timestamp closed_at = 6;
   bool is_green = 7;
   string closed_reason = 8;
+  Status status = 9;
 }
 
 message TaskRequest {

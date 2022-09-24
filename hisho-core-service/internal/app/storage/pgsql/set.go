@@ -10,15 +10,16 @@ import (
 	sq "github.com/Masterminds/squirrel"
 )
 
-// ChangeTaskStatus changes task 'closed_at' fiels
-func (s *PGStorage) ChangeTaskStatus(ctx context.Context, id int64, closedAt *time.Time, reason string) (*models.Task, error) {
+// UpdateTaskStatus changes task 'closed_at' fiels
+func (s *PGStorage) UpdateTaskStatus(ctx context.Context, id int64, closedAt *time.Time, reason string) (*models.Task, error) {
 	query, args, err := sq.Update(tasksTableName).
 		SetMap(map[string]interface{}{
 			closedAtColumnName:     closedAt,
 			closedReasonColumnName: reason,
 			updatedAtColumnName:    time.Now().UTC(),
 		}).
-		Where(idColumnName, id).
+		Where(sq.Eq{idColumnName: id}).
+		Suffix(returningAll).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 
@@ -36,8 +37,8 @@ func (s *PGStorage) ChangeTaskStatus(ctx context.Context, id int64, closedAt *ti
 	return scanTask(rows)
 }
 
-// EditTask sets editable task fields
-func (s *PGStorage) EditTask(ctx context.Context, task models.Task) (*models.Task, error) {
+// UpdateTask sets editable task fields
+func (s *PGStorage) UpdateTask(ctx context.Context, task *models.Task) (*models.Task, error) {
 	query, args, err := sq.Update(tasksTableName).
 		SetMap(map[string]interface{}{
 			titleColumnName:     task.Title,
@@ -45,7 +46,8 @@ func (s *PGStorage) EditTask(ctx context.Context, task models.Task) (*models.Tas
 			isGreenColumnName:   task.IsGreen,
 			updatedAtColumnName: time.Now().UTC(),
 		}).
-		Where(idColumnName, task.ID).
+		Where(sq.Eq{idColumnName: task.ID}).
+		Suffix(returningAll).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 
