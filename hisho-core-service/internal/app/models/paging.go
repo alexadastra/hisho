@@ -42,5 +42,5 @@ func NewPaging(page *api.Page) (*Paging, error) {
 
 // ToLimitOffset represents limit + offset to be selected with from the db
 func (p *Page) ToLimitOffset() (int64, int64) {
-	return p.Size, p.Size * p.Number
+	return p.Size, p.Size * (p.Number - 1)
 }
