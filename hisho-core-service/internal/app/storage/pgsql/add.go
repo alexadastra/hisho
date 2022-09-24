@@ -2,6 +2,7 @@ package pgsql
 
 import (
 	"context"
+	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/alexadastra/hisho/hisho-core-service/internal/app/models"
@@ -14,7 +15,7 @@ func (s *PGStorage) AddTasks(ctx context.Context, tasks []*models.Task) ([]*mode
 	query := sq.
 		Insert(tasksTableName).
 		Columns(allColumns...).
-		Suffix("on conflict do nothing returning *").
+		Suffix(fmt.Sprintf("%s %s", onConflictDoNothing, returningAll)).
 		PlaceholderFormat(sq.Dollar)
 
 	for _, task := range tasks {

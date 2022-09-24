@@ -19,6 +19,9 @@ const (
 	updatedAtColumnName    = "updated_at"
 	closedAtColumnName     = "closed_at"
 	closedReasonColumnName = "closed_reason"
+
+	onConflictDoNothing = "on conflict do nothing"
+	returningAll        = "returning *"
 )
 
 var allColumns = []string{
@@ -64,7 +67,7 @@ func scanTasks(rows *sqlx.Rows) ([]*models.Task, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create new term")
 		}
-		task.Term = term
+		task.Term = *term
 		tasks = append(tasks, task)
 	}
 

@@ -301,6 +301,9 @@
         },
         "closed_reason": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/hisho_core_serviceStatus"
         }
       }
     },
