@@ -19,6 +19,7 @@ type Task struct {
 	UpdatedAt    time.Time  `db:"updated_at"`
 	ClosedAt     *time.Time `db:"created_at"`
 	ClosedReason string     `db:"closed_reason"`
+	IsArchived   bool       `db:"is_archived"`
 }
 
 // NewTask converts proto struct to the internal one
@@ -39,6 +40,7 @@ func NewTask(apiTask *api.Task) (*Task, error) {
 		UpdatedAt:    *fromTimestampb(apiTask.UpdatedAt),
 		ClosedAt:     fromTimestampb(apiTask.ClosedAt),
 		ClosedReason: apiTask.ClosedReason,
+		IsArchived:   false,
 	}, nil
 }
 
