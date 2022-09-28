@@ -19,14 +19,15 @@ const (
 	updatedAtColumnName    = "updated_at"
 	closedAtColumnName     = "closed_at"
 	closedReasonColumnName = "closed_reason"
+	isArchivedColumnName   = "is_archived"
 
 	onConflictDoNothing = "on conflict do nothing"
 	returningAll        = "returning *"
 )
 
 var allColumns = []string{
-	idColumnName, titleColumnName, termColumnName, isGreenColumnName,
-	createdAtColumnName, updatedAtColumnName, closedAtColumnName, closedReasonColumnName,
+	idColumnName, titleColumnName, termColumnName, isGreenColumnName, createdAtColumnName,
+	updatedAtColumnName, closedAtColumnName, closedReasonColumnName, isArchivedColumnName,
 }
 
 // PGStorage implements Storage with Postgres database
@@ -60,6 +61,7 @@ func scanTasks(rows *sqlx.Rows) ([]*models.Task, error) {
 			&task.UpdatedAt,
 			&task.ClosedAt,
 			&task.ClosedReason,
+			&task.IsArchived,
 		); err != nil {
 			return nil, errors.Wrap(err, "falied to scan row into struct")
 		}
@@ -81,7 +83,7 @@ func scanTask(rows *sqlx.Rows) (*models.Task, error) {
 	}
 
 	if len(tasks) > 1 {
-		return nil, errors.New("more than one rows by PK")
+		return nil, errors.New("more than one rows when one was requested")
 	}
 
 	if len(tasks) == 0 {

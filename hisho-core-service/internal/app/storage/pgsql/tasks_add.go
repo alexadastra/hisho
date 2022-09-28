@@ -28,6 +28,7 @@ func (s *PGStorage) AddTasks(ctx context.Context, tasks []*models.Task) ([]*mode
 			task.UpdatedAt,
 			task.ClosedAt,
 			task.ClosedReason,
+			task.IsArchived,
 		)
 	}
 
