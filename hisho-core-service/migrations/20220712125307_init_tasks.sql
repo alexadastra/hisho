@@ -11,6 +11,10 @@ CREATE TABLE tasks (
     closed_reason text,
     is_archived bool not null default false
 );
+
+CREATE TABLE users (
+    id bigint primary key,
+);
 -- +goose StatementEnd
 
 -- +goose Down
