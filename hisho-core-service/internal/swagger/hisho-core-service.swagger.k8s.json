@@ -25,7 +25,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -58,7 +58,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -91,7 +91,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -124,7 +124,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -157,7 +157,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -178,6 +178,24 @@
     }
   },
   "definitions": {
+    "googlerpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
     "hisho_core_serviceAddTaskRequest": {
       "type": "object",
       "properties": {
@@ -200,10 +218,10 @@
           "format": "uint64"
         },
         "from": {
-          "type": "string"
+          "$ref": "#/definitions/hisho_core_serviceStatus"
         },
         "to": {
-          "type": "string"
+          "$ref": "#/definitions/hisho_core_serviceStatus"
         },
         "reason": {
           "type": "string"
@@ -243,6 +261,16 @@
         }
       }
     },
+    "hisho_core_serviceStatus": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNDEFINED",
+        "STATUS_DONE",
+        "STATUS_NOT_DONE",
+        "STATUS_CLOSED"
+      ],
+      "default": "STATUS_UNDEFINED"
+    },
     "hisho_core_serviceTask": {
       "type": "object",
       "properties": {
@@ -273,6 +301,9 @@
         },
         "closed_reason": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/hisho_core_serviceStatus"
         }
       }
     },
@@ -301,12 +332,12 @@
     "hisho_core_serviceTerm": {
       "type": "string",
       "enum": [
-        "UNDEFINED",
-        "OTHER",
-        "WEEK",
-        "TODAY"
+        "TERM_UNDEFINED",
+        "TERM_OTHER",
+        "TERM_WEEK",
+        "TERM_TODAY"
       ],
-      "default": "UNDEFINED"
+      "default": "TERM_UNDEFINED"
     },
     "protobufAny": {
       "type": "object",
@@ -317,24 +348,6 @@
         "value": {
           "type": "string",
           "format": "byte"
-        }
-      }
-    },
-    "rpcStatus": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        },
-        "details": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/protobufAny"
-          }
         }
       }
     }

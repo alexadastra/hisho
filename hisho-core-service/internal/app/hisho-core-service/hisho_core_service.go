@@ -76,10 +76,28 @@ func (hs *HishoCoreService) AddTask(ctx context.Context, request *api.AddTaskReq
 
 // ChangeTaskStatus implements api.HishoCoreServiceServer
 func (hs *HishoCoreService) ChangeTaskStatus(ctx context.Context, request *api.ChangeTaskStatusRequest) (*api.Task, error) {
-	panic("unimplemented")
+	statusChangeEvent, err := models.NewChangeStatusEvent(request.From, request.To, request.Reason)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "failed to create status change entity: %s", err)
+	}
+
+	newTask, err := hs.service.ChangeTaskStatus(ctx, request.Id, statusChangeEvent, request.Reason)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to change task status")
+	}
+	return newTask.ToProto(), nil
 }
 
 // EditTask implements api.HishoCoreServiceServer
-func (hs *HishoCoreService) EditTask(context.Context, *api.Task) (*api.Task, error) {
-	panic("unimplemented")
+func (hs *HishoCoreService) EditTask(ctx context.Context, apiTask *api.Task) (*api.Task, error) {
+	task, err := models.NewTask(apiTask)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "failed to create task entity: %s", err)
+	}
+
+	newTask, err := hs.service.EditTask(ctx, task)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to edit task")
+	}
+	return newTask.ToProto(), nil
 }

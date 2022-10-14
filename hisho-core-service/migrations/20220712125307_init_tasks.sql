@@ -8,7 +8,12 @@ CREATE TABLE tasks (
     created_at timestamp not null default now(),
     updated_at timestamp not null default now(),
     closed_at timestamp,
-    closed_reason text
+    closed_reason text,
+    is_archived bool not null default false
+);
+
+CREATE TABLE users (
+    id bigint primary key,
 );
 -- +goose StatementEnd
 

@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alexadastra/hisho/hisho-core-service/internal/app/background"
 	service2 "github.com/alexadastra/hisho/hisho-core-service/internal/app/hisho-core-service"
 	"github.com/alexadastra/hisho/hisho-core-service/internal/app/storage/pgsql"
+	"github.com/alexadastra/hisho/hisho-core-service/internal/app/worker"
 
 	"github.com/alexadastra/ramme/config"
 	"github.com/alexadastra/ramme/service"
@@ -58,6 +60,20 @@ func main() {
 
 	serv := service3.NewService(storage)
 
+	archiveWorkerPool := worker.NewArchiveWorkerPool(
+		serv,
+		5, // TODO: move to config
+	)
+	archiveWorkerPool.Start(ctx)
+	defer func() { _ = archiveWorkerPool.Stop() }()
+
+	archiveTicker := background.NewArchiveBackroundJob(
+		archiveWorkerPool,
+		5*time.Second, // TODO: move to config
+	)
+	archiveTicker.Start(ctx)
+	defer func() { _ = archiveTicker.Stop() }()
+
 	// Setup gRPC servers.
 	baseGrpcServer := grpc.NewServer()
 	userGrpcServer := service2.NewHishoCoreService(serv)
@@ -92,6 +108,22 @@ func main() {
 
 	// Serve
 	g := system.NewGroupOperator()
+
+	/*
+		g.Add(func() error {
+			archiveWorkerPool.Start(ctx)
+			return nil
+		}, func(err error) {
+			_ = archiveWorkerPool.Stop
+		})
+
+		g.Add(func() error {
+			archiveTicker.Start(ctx)
+			return nil
+		}, func(err error) {
+			_ = archiveTicker.Stop
+		})
+	*/
 
 	g.Add(func() error {
 		return basicConfWatcher.Run()
