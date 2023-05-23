@@ -1,4 +1,4 @@
-# Hisho:bird:
+# Hisho :bird:
 
 ## What is it?
 

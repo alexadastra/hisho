@@ -1,11 +1,13 @@
+# Mac OS X files
+.DS_Store
+
 # Binaries for programs and plugins
 *.exe
-*.exe~
 *.dll
 *.so
 *.dylib
 
-# Test binary, built with `go test -c`
+# Test binary, build with `go test -c`
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
@@ -15,4 +17,35 @@
 # vendor/
 .vscode
 
-.idea
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
+
+# Goland files
+.idea/
+
+bin/
+/certs/
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/client/node_modules
+/client/.pnp
+/client/.pnp.js
+/client/
+/client/# testing
+/client/coverage
+/client/
+/client/# production
+/client/build
+/client/
+/client/# misc
+/client/.DS_Store
+/client/.env.local
+/client/.env.development.local
+/client/.env.test.local
+/client/.env.production.local
+/client/
+/client/npm-debug.log*
+/client/yarn-debug.log*
+/client/yarn-error.log*
